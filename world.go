@@ -61,6 +61,20 @@ func (w *World) RemoveEntity(e Entity) error {
 	return nil
 }
 
+func (w *World) Components(componentType reflect.Type) *ComponentContainer {
+	return w.componentContainers[componentType]
+}
+
+func (w *World) AddComponentType(componentType reflect.Type, componentFactory ComponentFactory) error {
+	if w.Components(componentType) != nil {
+		return fmt.Errorf("Component type '%v' is already registered for this world!", componentType)
+	}
+
+	w.componentContainers[componentType] = NewComponentContainer(componentFactory)
+
+	return nil
+}
+
 // NewWorld returns a new world
 func NewWorld() *World {
 	return &World{nextId: minEntityId, deletedEntities: make([]Entity, 0), componentContainers: make(map[reflect.Type]*ComponentContainer)}
