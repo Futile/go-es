@@ -13,8 +13,7 @@ var mockComponentFactory ComponentFactory = func() Component {
 }
 
 func TestComponentContainer(t *testing.T) {
-	w := NewWorld()
-	e := w.NewEntity()
+	e := Entity{id: 0, reuseCount: 0}
 
 	cc := NewComponentContainer(mockComponentFactory)
 
@@ -40,12 +39,10 @@ func TestComponentContainer(t *testing.T) {
 		t.Errorf("Has() returned false even though Component was created!")
 	}
 
-	w.RemoveEntity(e)
-
-	e = w.NewEntity()
+	e.reuseCount = 1
 
 	if cc.Has(e) {
-		t.Errorf("Has() returned true even though entity was re-created!")
+		t.Errorf("Has() returned true even though reuseCount was changed!")
 	}
 
 	c, _ = cc.Create(e)
