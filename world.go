@@ -25,7 +25,7 @@ func (w *World) NewEntity() Entity {
 		return e
 	}
 
-	// panic if no more entity ids are available(probably much worse problem anyway..)
+	// panic if no more entity ids are available(probably much worse problems anyway..)
 	if w.nextId == maxEntityId {
 		panic("No new EntityId available.")
 	}
@@ -45,18 +45,7 @@ func (w *World) RemoveEntity(e Entity) error {
 		}
 	}
 
-	// if len == cap, just append the entity
-	if len(w.deletedEntities) == cap(w.deletedEntities) {
-		w.deletedEntities = append(w.deletedEntities, e)
-
-		return nil
-	}
-
-	// else, grow the len of the slice and insert it at last position
-	newIndex := len(w.deletedEntities) + 1
-
-	w.deletedEntities = w.deletedEntities[:newIndex]
-	w.deletedEntities[newIndex] = e
+	w.deletedEntities = append(w.deletedEntities, e)
 
 	return nil
 }
