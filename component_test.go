@@ -19,6 +19,30 @@ func mockComponentFactory() Component {
 	return &mockComponent{mockBool: false}
 }
 
+type mockComponent2 struct {
+	BaseComponent
+
+	mockBool bool
+}
+
+var mockComponentType2 reflect.Type = reflect.TypeOf(mockComponent2{})
+
+func mockComponentFactory2() Component {
+	return &mockComponent2{mockBool: false}
+}
+
+type mockComponent3 struct {
+	BaseComponent
+
+	mockBool bool
+}
+
+var mockComponentType3 reflect.Type = reflect.TypeOf(mockComponent3{})
+
+func mockComponentFactory3() Component {
+	return &mockComponent3{mockBool: false}
+}
+
 func TestComponentContainer(t *testing.T) {
 	If := lilt.NewIf(t)
 
@@ -51,4 +75,20 @@ func TestComponentContainer(t *testing.T) {
 
 	err = cc.Remove(e)
 	If(err == nil).Errorf("Second call to Remove() did not return an error!")
+
+	const numTests = 3
+
+	for i := entityId(0); i < numTests; i++ {
+		cc.Create(Entity{id: i})
+	}
+
+	found := make(map[Entity]bool)
+
+	for e := range cc.all() {
+		found[e] = true
+	}
+
+	for i := entityId(0); i < numTests; i++ {
+		If(!found[Entity{id: i}]).Errorf("all() did not return a component for entity %v", i)
+	}
 }

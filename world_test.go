@@ -34,12 +34,50 @@ func TestWorldRemoveEntity(t *testing.T) {
 
 	cc := world.Components(mockComponentType)
 
-	cc.Create(e)
+	_, err := cc.Create(e)
 
-	// If(err != nil).Errorf("Create() returned error")
+	If(err != nil).Errorf("Create() returned an error")
 	If(!cc.Has(e)).Errorf("Has() returned false")
 
 	world.RemoveEntity(e)
 
 	If(cc.Has(e)).Errorf("Entity was removed, but not the accompanying Component")
+}
+
+func TestEntitiesWith(t *testing.T) {
+	world := NewWorld()
+
+	world.AddComponentType(mockComponentType, mockComponentFactory)
+	world.AddComponentType(mockComponentType2, mockComponentFactory2)
+	world.AddComponentType(mockComponentType3, mockComponentFactory3)
+
+	cc := world.Components(mockComponentType)
+	cc2 := world.Components(mockComponentType2)
+	cc3 := world.Components(mockComponentType3)
+
+	e := world.NewEntity()
+
+	cc.Create(e)
+	cc2.Create(e)
+	cc3.Create(e)
+
+	success := false
+	for en := range world.EntitiesWith(mockComponentType, mockComponentType2, mockComponentType3) {
+		if en != e {
+			t.Errorf("wrong entity returned")
+		}
+
+		success = true
+	}
+
+	if !success {
+		t.Errorf("EntitiesWith did not return a necessary entity.")
+	}
+
+	cc3.Remove(e)
+
+	for _ = range world.EntitiesWith(mockComponentType, mockComponentType2, mockComponentType3) {
+		t.Errorf("Found an entity even though none was supposed to be found")
+	}
+
 }

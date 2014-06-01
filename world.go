@@ -67,6 +67,28 @@ func (w *World) AddComponentType(componentType reflect.Type, componentFactory Co
 	return nil
 }
 
+func (w *World) EntitiesWith(primary reflect.Type, others ...reflect.Type) chan Entity {
+	entities := make(chan Entity)
+
+	go func() {
+		for e := range w.Components(primary).all() {
+			hasAll := true
+
+			for _, other := range others {
+				cc := w.Components(other)
+				hasAll = hasAll && cc.Has(e)
+			}
+
+			if hasAll {
+				entities <- e
+			}
+		}
+		close(entities)
+	}()
+
+	return entities
+}
+
 // NewWorld returns a new world
 func NewWorld() *World {
 	return &World{nextId: minEntityId, deletedEntities: make([]Entity, 0), componentContainers: make(map[reflect.Type]*ComponentContainer)}

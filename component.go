@@ -19,6 +19,19 @@ func newComponentContainer(componentFactory ComponentFactory) *ComponentContaine
 	return &ComponentContainer{components: make(map[entityId]Component), componentFactory: componentFactory}
 }
 
+func (cc *ComponentContainer) all() chan Entity {
+	all := make(chan Entity)
+
+	go func() {
+		for id, _ := range cc.components {
+			all <- Entity{id: id}
+		}
+		close(all)
+	}()
+
+	return all
+}
+
 // Get returns the component belonging to an entity from this container
 func (cc *ComponentContainer) Get(e Entity) Component {
 	c := cc.components[e.id]
