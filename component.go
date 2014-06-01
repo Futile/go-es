@@ -3,20 +3,9 @@ package es
 import "fmt"
 
 type Component interface {
-	reuseCount() uint64
-	setReuseCount(count uint64)
 }
 
 type BaseComponent struct {
-	reuseCounter uint64
-}
-
-func (b *BaseComponent) reuseCount() uint64 {
-	return b.reuseCounter
-}
-
-func (b *BaseComponent) setReuseCount(count uint64) {
-	b.reuseCounter = count
 }
 
 type ComponentFactory func() Component
@@ -26,18 +15,13 @@ type ComponentContainer struct {
 	componentFactory ComponentFactory
 }
 
-func NewComponentContainer(componentFactory ComponentFactory) *ComponentContainer {
+func newComponentContainer(componentFactory ComponentFactory) *ComponentContainer {
 	return &ComponentContainer{components: make(map[entityId]Component), componentFactory: componentFactory}
 }
 
 // Get returns the component belonging to an entity from this container
 func (cc *ComponentContainer) Get(e Entity) Component {
 	c := cc.components[e.id]
-
-	// check if there is no component, or the reuse component is wrong
-	if c == nil || c.reuseCount() != e.reuseCount {
-		return nil
-	}
 
 	return c
 }
@@ -56,7 +40,6 @@ func (cc *ComponentContainer) Create(e Entity) (Component, error) {
 	}
 
 	c := cc.componentFactory()
-	c.setReuseCount(e.reuseCount)
 
 	// save the new component in the map
 	cc.components[e.id] = c

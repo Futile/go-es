@@ -1,6 +1,7 @@
 package es
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/futile/go-lil-t"
@@ -12,6 +13,8 @@ type mockComponent struct {
 	mockBool bool
 }
 
+var mockComponentType reflect.Type = reflect.TypeOf(mockComponent{})
+
 func mockComponentFactory() Component {
 	return &mockComponent{mockBool: false}
 }
@@ -19,9 +22,9 @@ func mockComponentFactory() Component {
 func TestComponentContainer(t *testing.T) {
 	If := lilt.NewIf(t)
 
-	e := Entity{id: 0, reuseCount: 0}
+	e := Entity{id: 0}
 
-	cc := NewComponentContainer(mockComponentFactory)
+	cc := newComponentContainer(mockComponentFactory)
 	If(cc.Has(e)).Errorf("Has() returned true for empty ComponentContainer!")
 
 	c, err := cc.Create(e)
@@ -32,12 +35,6 @@ func TestComponentContainer(t *testing.T) {
 	if _, ok := c.(*mockComponent); !ok {
 		t.Errorf("Create() returned wrong type! expected: *mockComponent, but got: %T", c)
 	}
-
-	e.reuseCount = 1
-	If(cc.Has(e)).Errorf("Has() returned true even though reuseCount was changed!")
-
-	c, _ = cc.Create(e)
-	If(c.reuseCount() != e.reuseCount).Errorf("Wrong reuse counts: entity: %v, component: %v", e.reuseCount, c.reuseCount())
 
 	_, err = cc.Create(e)
 	If(err == nil).Errorf("Second call to Create() did not cause an error!")

@@ -10,6 +10,5 @@ const (
 )
 
 type Entity struct {
-	id         entityId
-	reuseCount uint64
+	id entityId
 }

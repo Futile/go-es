@@ -21,5 +21,25 @@ func TestWorld(t *testing.T) {
 
 	e3 := world.NewEntity()
 	If(e3.id != e2.id).Errorf("Id was not reused!")
-	If(e3.reuseCount == e2.reuseCount).Errorf("reuseCount is the same!")
+}
+
+func TestWorldRemoveEntity(t *testing.T) {
+	If := lilt.NewIf(t)
+
+	world := NewWorld()
+
+	world.AddComponentType(mockComponentType, mockComponentFactory)
+
+	e := world.NewEntity()
+
+	cc := world.Components(mockComponentType)
+
+	cc.Create(e)
+
+	// If(err != nil).Errorf("Create() returned error")
+	If(!cc.Has(e)).Errorf("Has() returned false")
+
+	world.RemoveEntity(e)
+
+	If(cc.Has(e)).Errorf("Entity was removed, but not the accompanying Component")
 }

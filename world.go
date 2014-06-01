@@ -13,12 +13,11 @@ type World struct {
 
 // NewEntity returns a new entity belonging to the given world
 func (w *World) NewEntity() Entity {
-	// check if there is a deleted entity available, if so increase reuse count and return it
+	// check if there is a deleted entity available, if so and return it
 	if len(w.deletedEntities) > 0 {
 		lastIndex := len(w.deletedEntities) - 1
 
 		e := w.deletedEntities[lastIndex]
-		e.reuseCount++
 
 		w.deletedEntities = w.deletedEntities[:lastIndex]
 
@@ -34,7 +33,7 @@ func (w *World) NewEntity() Entity {
 	w.nextId++
 
 	// return new entity with new id and zero reuse count
-	return Entity{id: w.nextId - 1, reuseCount: 0}
+	return Entity{id: w.nextId - 1}
 }
 
 // RemoveEntity removes a given entity from the world, and stores it for reuse
@@ -46,6 +45,10 @@ func (w *World) RemoveEntity(e Entity) error {
 	}
 
 	w.deletedEntities = append(w.deletedEntities, e)
+
+	for _, cc := range w.componentContainers {
+		cc.Remove(e)
+	}
 
 	return nil
 }
@@ -59,7 +62,7 @@ func (w *World) AddComponentType(componentType reflect.Type, componentFactory Co
 		return fmt.Errorf("Component type '%v' is already registered for this world!", componentType)
 	}
 
-	w.componentContainers[componentType] = NewComponentContainer(componentFactory)
+	w.componentContainers[componentType] = newComponentContainer(componentFactory)
 
 	return nil
 }
