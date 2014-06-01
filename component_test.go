@@ -8,8 +8,6 @@ import (
 )
 
 type mockComponent struct {
-	BaseComponent
-
 	mockBool bool
 }
 
@@ -20,8 +18,6 @@ func mockComponentFactory() Component {
 }
 
 type mockComponent2 struct {
-	BaseComponent
-
 	mockBool bool
 }
 
@@ -32,8 +28,6 @@ func mockComponentFactory2() Component {
 }
 
 type mockComponent3 struct {
-	BaseComponent
-
 	mockBool bool
 }
 

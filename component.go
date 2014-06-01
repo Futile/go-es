@@ -5,9 +5,6 @@ import "fmt"
 type Component interface {
 }
 
-type BaseComponent struct {
-}
-
 type ComponentFactory func() Component
 
 type ComponentContainer struct {
