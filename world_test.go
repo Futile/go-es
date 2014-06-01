@@ -2,6 +2,7 @@ package es
 
 import (
 	"testing"
+	"time"
 
 	"github.com/futile/go-lil-t"
 )
@@ -44,7 +45,7 @@ func TestWorldRemoveEntity(t *testing.T) {
 	If(cc.Has(e)).Errorf("Entity was removed, but not the accompanying Component")
 }
 
-func TestEntitiesWith(t *testing.T) {
+func TestWorldEntitiesWith(t *testing.T) {
 	world := NewWorld()
 
 	world.AddComponentType(mockComponentType, mockComponentFactory)
@@ -62,6 +63,7 @@ func TestEntitiesWith(t *testing.T) {
 	cc3.Create(e)
 
 	success := false
+
 	for en := range world.EntitiesWith(mockComponentType, mockComponentType2, mockComponentType3) {
 		if en != e {
 			t.Errorf("wrong entity returned")
@@ -80,4 +82,34 @@ func TestEntitiesWith(t *testing.T) {
 		t.Errorf("Found an entity even though none was supposed to be found")
 	}
 
+}
+
+func TestWorldSystems(t *testing.T) {
+	world := NewWorld()
+
+	const cDelta time.Duration = 1 * time.Second
+
+	var executed, deferredExecuted bool
+
+	world.AddSystem(SystemFunc(func(world *World, delta time.Duration) []func() {
+		if delta != cDelta {
+			t.Errorf("Wrong delta in System.Step")
+		}
+
+		executed = true
+
+		return []func(){func() {
+			deferredExecuted = true
+		}}
+	}))
+
+	world.Step(cDelta)
+
+	if !executed {
+		t.Errorf("System was not executed during World.Step")
+	}
+
+	if !deferredExecuted {
+		t.Errorf("Deferred function was not executed after World.Step")
+	}
 }

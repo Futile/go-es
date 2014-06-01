@@ -3,12 +3,14 @@ package es
 import (
 	"fmt"
 	"reflect"
+	"time"
 )
 
 type World struct {
 	nextId              entityId
 	deletedEntities     []Entity
 	componentContainers map[reflect.Type]*ComponentContainer
+	systems             []System
 }
 
 // NewEntity returns a new entity belonging to the given world
@@ -89,7 +91,27 @@ func (w *World) EntitiesWith(primary reflect.Type, others ...reflect.Type) chan 
 	return entities
 }
 
+func (w *World) AddSystem(system System) {
+	w.systems = append(w.systems, system)
+}
+
+func (w *World) Step(delta time.Duration) {
+	deferredFunctions := make([]func(), 0)
+
+	for _, s := range w.systems {
+		funcs := s.Step(w, delta)
+
+		if funcs != nil {
+			deferredFunctions = append(deferredFunctions, funcs...)
+		}
+	}
+
+	for _, f := range deferredFunctions {
+		f()
+	}
+}
+
 // NewWorld returns a new world
 func NewWorld() *World {
-	return &World{nextId: minEntityId, deletedEntities: make([]Entity, 0), componentContainers: make(map[reflect.Type]*ComponentContainer)}
+	return &World{nextId: minEntityId, deletedEntities: make([]Entity, 0), componentContainers: make(map[reflect.Type]*ComponentContainer), systems: make([]System, 0)}
 }
