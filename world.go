@@ -111,6 +111,12 @@ func (w *World) Step(delta time.Duration) {
 	}
 }
 
+func (w *World) RunOnce(delta time.Duration, system System) {
+	for _, f := range system.Step(w, delta) {
+		f()
+	}
+}
+
 // NewWorld returns a new world
 func NewWorld() *World {
 	return &World{nextId: minEntityId, deletedEntities: make([]Entity, 0), componentContainers: make(map[reflect.Type]*ComponentContainer), systems: make([]System, 0)}

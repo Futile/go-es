@@ -113,3 +113,25 @@ func TestWorldSystems(t *testing.T) {
 		t.Errorf("Deferred function was not executed after World.Step")
 	}
 }
+
+func TestWorldRunOnce(t *testing.T) {
+	world := NewWorld()
+
+	var executed, deferredExecuted bool
+
+	world.RunOnce(0, SystemFunc(func(world *World, delta time.Duration) []func() {
+		executed = true
+
+		return []func(){func() {
+			deferredExecuted = true
+		}}
+	}))
+
+	if !executed {
+		t.Errorf("System was not run during RunOnce")
+	}
+
+	if !deferredExecuted {
+		t.Errorf("Deferred function was not run after RunOnce")
+	}
+}
