@@ -16,6 +16,7 @@ func newComponentContainer(componentFactory ComponentFactory) *ComponentContaine
 	return &ComponentContainer{components: make(map[entityId]Component), componentFactory: componentFactory}
 }
 
+// all returns all entities which are registered in this ComponentContainer. so far only used internally, should use World.EntitiesWith() from outside.
 func (cc *ComponentContainer) all() chan Entity {
 	all := make(chan Entity)
 

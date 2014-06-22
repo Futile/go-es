@@ -74,14 +74,14 @@ func (w *World) EntitiesWith(primary reflect.Type, others ...reflect.Type) chan 
 
 	go func() {
 		for e := range w.Components(primary).all() {
-			hasAll := true
+			hasOthers := true
 
 			for _, other := range others {
 				cc := w.Components(other)
-				hasAll = hasAll && cc.Has(e)
+				hasOthers = hasOthers && cc.Has(e)
 			}
 
-			if hasAll {
+			if hasOthers {
 				entities <- e
 			}
 		}
