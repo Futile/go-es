@@ -17,17 +17,10 @@ func newComponentContainer(componentFactory ComponentFactory) *ComponentContaine
 }
 
 // all returns all entities which are registered in this ComponentContainer. so far only used internally, should use World.EntitiesWith() from outside.
-func (cc *ComponentContainer) all() chan Entity {
-	all := make(chan Entity)
-
-	go func() {
-		for id, _ := range cc.components {
-			all <- Entity{id: id}
-		}
-		close(all)
-	}()
-
-	return all
+func (cc *ComponentContainer) forEach(callback func(Entity)) {
+	for id := range cc.components {
+		callback(Entity{id: id})
+	}
 }
 
 // Get returns the component belonging to an entity from this container

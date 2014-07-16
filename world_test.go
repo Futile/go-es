@@ -64,13 +64,13 @@ func TestWorldEntitiesWith(t *testing.T) {
 
 	success := false
 
-	for en := range world.EntitiesWith(mockComponentType, mockComponentType2, mockComponentType3) {
+	world.ForEntitiesWith(func(en Entity) {
 		if en != e {
 			t.Errorf("wrong entity returned")
 		}
 
 		success = true
-	}
+	}, mockComponentType, mockComponentType2, mockComponentType3)
 
 	if !success {
 		t.Errorf("EntitiesWith did not return a necessary entity.")
@@ -78,9 +78,9 @@ func TestWorldEntitiesWith(t *testing.T) {
 
 	cc3.Remove(e)
 
-	for _ = range world.EntitiesWith(mockComponentType, mockComponentType2, mockComponentType3) {
-		t.Errorf("Found an entity even though none was supposed to be found")
-	}
+	world.ForEntitiesWith(func(en Entity) {
+		t.Errorf("found an entity even though none was supposed to be found")
+	}, mockComponentType, mockComponentType2, mockComponentType3)
 
 }
 

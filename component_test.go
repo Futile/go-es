@@ -78,9 +78,9 @@ func TestComponentContainer(t *testing.T) {
 
 	found := make(map[Entity]bool)
 
-	for e := range cc.all() {
+	cc.forEach(func(e Entity) {
 		found[e] = true
-	}
+	})
 
 	for i := entityId(0); i < numTests; i++ {
 		If(!found[Entity{id: i}]).Errorf("all() did not return a component for entity %v", i)

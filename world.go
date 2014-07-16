@@ -69,26 +69,19 @@ func (w *World) AddComponentType(componentType reflect.Type, componentFactory Co
 	return nil
 }
 
-func (w *World) EntitiesWith(primary reflect.Type, others ...reflect.Type) chan Entity {
-	entities := make(chan Entity)
+func (w *World) ForEntitiesWith(f func(Entity), primary reflect.Type, others ...reflect.Type) {
+	w.Components(primary).forEach(func(e Entity) {
+		hasOthers := true
 
-	go func() {
-		for e := range w.Components(primary).all() {
-			hasOthers := true
-
-			for _, other := range others {
-				cc := w.Components(other)
-				hasOthers = hasOthers && cc.Has(e)
-			}
-
-			if hasOthers {
-				entities <- e
-			}
+		for _, other := range others {
+			cc := w.Components(other)
+			hasOthers = hasOthers && cc.Has(e)
 		}
-		close(entities)
-	}()
 
-	return entities
+		if hasOthers {
+			f(e)
+		}
+	})
 }
 
 func (w *World) AddSystem(system System) {
